@@ -1,7 +1,12 @@
+import csv
 import os
 
 import requests
 from bs4 import BeautifulSoup
+
+ARTICLE_FILE = 'article.csv'
+COMMENT_URLS_FILE = 'comment_urls.csv'
+COMMENTS_FILE = 'comments.csv'
 
 
 def file_maker(file_name, action, *index):
@@ -32,6 +37,24 @@ def soup_maker(file_name, url):
 
     soup = BeautifulSoup(html, 'html.parser')
     return soup
+
+
+def save(file_name, row):
+    with open(file_name, 'a+', encoding='utf-8', newline='')as file:
+        file.seek(0)
+        if '$eof$' in file.read():
+            return
+        else:
+            writer = csv.writer(file, delimiter=',')
+            if file_name == ARTICLE_FILE or file_name == COMMENTS_FILE:
+                keys = list(row.keys())
+                values = list(row.values())
+                if os.path.getsize(file_name) == 0:
+                    writer.writerow(keys)  # header
+                writer.writerow(values)
+            if file_name == COMMENT_URLS_FILE:
+                writer = csv.writer(file)
+                writer.writerow([row])
 
 
 def delete_all_files():
